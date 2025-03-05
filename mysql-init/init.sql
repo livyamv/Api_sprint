@@ -1,5 +1,8 @@
 -- init.sql
+ create database agenda_senai;
 
+ use agenda_senai;
+ 
 CREATE TABLE `classroom` (
   `number` char(5) NOT NULL,
   `description` varchar(255) NOT NULL,
