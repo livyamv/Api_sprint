@@ -1,15 +1,17 @@
--- init.sql
- create database agenda_senai;
+-- Criação do banco de dados
+CREATE DATABASE agenda_senai;
 
- use agenda_senai;
- 
+USE agenda_senai;
+
+-- Criação da tabela `classroom`
 CREATE TABLE `classroom` (
   `number` char(5) NOT NULL,
   `description` varchar(255) NOT NULL,
-  `capacity` int(11) NOT NULL
+  `capacity` int(11) NOT NULL,
+  PRIMARY KEY (`number`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Todos os dados do SENAI para a tabela `classroom`
+-- Dados para a tabela `classroom`
 INSERT INTO `classroom` (`number`, `description`, `capacity`) VALUES
 ('A1', 'CONVERSORES', 16),
 ('A2', 'ELETRÔNICA', 16),
@@ -57,51 +59,46 @@ INSERT INTO `classroom` (`number`, `description`, `capacity`) VALUES
 ('MONT1', 'OFICINA DE MONTAGEM - G1', 16),
 ('MONT2', 'OFICINA DE MONTAGEM - G2', 16);
 
+-- Criação da tabela `user`
+CREATE TABLE `user` (
+  `name` varchar(50) NOT NULL,
+  `cpf` char(11) NOT NULL,
+  `email` varchar(50) NOT NULL,
+  `password` varchar(50) NOT NULL,
+  PRIMARY KEY (`cpf`),
+  UNIQUE KEY `cpf_UNIQUE` (`cpf`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Estrutura para tabela `schedule`
+-- Dados para a tabela `user`
+INSERT INTO `user` (`name`, `cpf`, `email`, `password`) VALUES
+('Livia', '12345680091', 'livia@gmail.com', '12345678'),
+('Ana Clara', '67644444444', 'ana@gmail.com', '09876543'),
+('Maria Clara', '12345660091', 'maria@gmail.com', '09090909');
+
+-- Criação da tabela `schedule`
 CREATE TABLE `schedule` (
-  `id` int(11) NOT NULL,
+  `id` int(11) NOT NULL AUTO_INCREMENT,
   `dateStart` date NOT NULL,
   `dateEnd` date NOT NULL,
   `days` varchar(255) NOT NULL,
   `user` char(11) NOT NULL,
   `classroom` char(5) NOT NULL,
   `timeStart` time NOT NULL,
-  `timeEnd` time NOT NULL
+  `timeEnd` time NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `user` (`user`),
+  KEY `classroom`(`classroom`),
+  CONSTRAINT `schedule_ibfk_1` FOREIGN KEY (`user`) REFERENCES `user` (`cpf`),
+  CONSTRAINT `schedule_ibfk_2` FOREIGN KEY (`classroom`) REFERENCES `classroom` (`number`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+-- Inserção de dados fictícios para a tabela `schedule`
+INSERT INTO `schedule` (`dateStart`, `dateEnd`, `days`, `user`, `classroom`, `timeStart`, `timeEnd`) VALUES
+('2025-03-10', '2025-03-10', 'Segunda, Quarta, Sexta', '12345680091', 'A1', '08:00:00', '10:00:00'),
+('2025-03-11', '2025-03-11', 'Terça, Quinta', '67644444444', 'B2', '10:00:00', '12:00:00'),
+('2025-03-12', '2025-03-12', 'Segunda a Sexta', '12345660091', 'C1', '14:00:00', '16:00:00');
 
--- Estrutura para tabela `user`
-CREATE TABLE `user` (
-  `cpf` char(11) NOT NULL,
-  `password` varchar(50) NOT NULL,
-  `email` varchar(50) NOT NULL,
-  `name` varchar(50) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+-- Comando para garantir que o AUTO_INCREMENT da tabela `schedule` está corretamente configurado
+ALTER TABLE `schedule` AUTO_INCREMENT = 44;
 
--- Despejando dados para a tabela `user`
-INSERT INTO `user` (`cpf`, `password`, `email`, `name`) VALUES
-('12345680091', '1234', 'euler.ferreira19@gmail.com', 'Euller Silva'),
-('46067858886', '1234', 'eu@eu', 'Euller Ferreira');
-
--- Índices para tabelas despejadas
-ALTER TABLE `classroom`
-  ADD PRIMARY KEY (`number`);
-
-ALTER TABLE `schedule`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `user` (`user`),
-  ADD KEY `classroom`(`classroom`);
-
-ALTER TABLE `user`
-  ADD PRIMARY KEY (`cpf`);
-
--- AUTO_INCREMENT para tabelas despejadas
-ALTER TABLE `schedule`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=44;
-
--- Restrições para tabelas despejadas
-ALTER TABLE `schedule`
-  ADD CONSTRAINT `schedule_ibfk_1` FOREIGN KEY (`user`) REFERENCES `user` (`cpf`),
-  ADD CONSTRAINT `schedule_ibfk_2` FOREIGN KEY (`classroom`) REFERENCES `classroom` (`number`);
 COMMIT;

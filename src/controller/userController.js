@@ -1,10 +1,10 @@
 const connect = require("../db/connect");
 module.exports = class userController {
   static async createUser(req, res) {
-    const { cpf, email, password, name } = req.body;
+    const { name, cpf, email, password } = req.body;
 
     // Verifica se todos os campos estão preenchidos
-    if (!cpf || !email || !password || !name) {
+    if (!name || !cpf || !email || !password) {
       return res
         .status(400)
         .json({ error: "Todos os campos devem ser preenchidos" });
@@ -12,22 +12,20 @@ module.exports = class userController {
 
     // Verifica se o CPF é numérico e tem exatamente 11 dígitos
     else if (isNaN(cpf) || cpf.length !== 11) {
-      return res
-        .status(400)
-        .json({
-          error: "CPF inválido. Deve conter exatamente 11 dígitos numéricos",
-        });
+      return res.status(400).json({
+        error: "CPF inválido. Deve conter exatamente 11 dígitos numéricos",
+      });
     }
 
     // Verifica se o email contém o caractere @
     else if (!email.includes("@")) {
       return res.status(400).json({ error: "Email inválido. Deve conter @" });
     } else {
-      const query = `INSERT INTO user (cpf, password, email, name) VALUES ( 
+      const query = `INSERT INTO user (name,cpf,email,password) VALUES ( 
+        '${name}', 
         '${cpf}', 
-        '${password}', 
         '${email}', 
-        '${name}'
+        '${password}'
       )`;
 
       try {
@@ -127,12 +125,10 @@ module.exports = class userController {
           return res.status(404).json({ error: "Usuário não encontrado" });
         }
 
-        return res
-          .status(200)
-          .json({
-            message: "Obtendo usuário com ID: " + userId,
-            user: results[0],
-          });
+        return res.status(200).json({
+          message: "Obtendo usuário com ID: " + userId,
+          user: results[0],
+        });
       });
     } catch (error) {
       console.error("Erro ao executar a consulta:", error);
@@ -142,15 +138,15 @@ module.exports = class userController {
 
   static async updateUser(req, res) {
     const userId = req.params.id;
-    const { cpf, email, password, name } = req.body;
+    const { name, cpf, email, password } = req.body;
     // Verifica se todos os campos estão preenchidos
-    if (!cpf || !email || !password || !name) {
+    if (!name || !cpf || !email || !password) {
       return res
         .status(400)
         .json({ error: "Todos os campos devem ser preenchidos" });
     } else {
-      const query = `UPDATE user SET email = ?, password = ?, name = ? WHERE cpf = ?`;
-      const values = [cpf, email, password, name, userId];
+      const query = `UPDATE user SET name = ?,cpf =? ,email = ?,password = ?`;
+      const values = [name, cpf, email, password, userId];
 
       try {
         connect.query(query, values, function (err, results) {
