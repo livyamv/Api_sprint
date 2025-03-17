@@ -1,3 +1,5 @@
+const connect = require("../db/connect");
+
 module.exports = function validateUser({
     name,
     cpf,
