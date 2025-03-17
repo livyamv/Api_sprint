@@ -61,13 +61,15 @@ INSERT INTO `classroom` (`number`, `description`, `capacity`) VALUES
 
 -- Criação da tabela `user`
 CREATE TABLE `user` (
-  `name` varchar(50) NOT NULL,
-  `cpf` char(11) NOT NULL,
-  `email` varchar(50) NOT NULL,
-  `password` varchar(50) NOT NULL,
-  PRIMARY KEY (`cpf`),
+  `id_usuario` INT NOT NULL AUTO_INCREMENT,
+  `name` VARCHAR(50) NOT NULL,
+  `cpf` CHAR(11) NOT NULL,
+  `email` VARCHAR(50) NOT NULL,
+  `password` VARCHAR(255) NOT NULL,
+  PRIMARY KEY (`id_usuario`),
   UNIQUE KEY `cpf_UNIQUE` (`cpf`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 
 -- Dados para a tabela `user`
 INSERT INTO `user` (`name`, `cpf`, `email`, `password`) VALUES

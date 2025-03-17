@@ -2,7 +2,7 @@ const connect = require("../db/connect");
 
 module.exports = async function validateCpf(cpf, userId = null) {
   return new Promise((resolve, reject) => {
-    const query = "SELECT id_usuario FROM usuario WHERE cpf = ?";
+    const query = "SELECT id_usuario FROM user WHERE cpf = ?";
     const values = [cpf];
 
     connect.query(query, values, (err, results) => {
