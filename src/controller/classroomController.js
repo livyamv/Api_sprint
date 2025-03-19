@@ -1,13 +1,12 @@
 const connect = require("../db/connect");
+const validateClassroom = require("../services/validateClassroom");
 module.exports = class classroomController {
   static async createClassroom(req, res) {
     const { number, description, capacity } = req.body;
 
-    // Verifica se todos os campos estão preenchidos
-    if (!number || !description || !capacity) {
-      return res
-        .status(400)
-        .json({ error: "Todos os campos devem ser preenchidos" });
+    const validationError = validateClassroom(req.body);
+    if (validationError) {
+      return res.status(400).json(validationError);
     }
 
     // Caso todos os campos estejam preenchidos, realiza a inserção na tabela
@@ -80,13 +79,10 @@ module.exports = class classroomController {
   static async updateClassroom(req, res) {
     const { number, description, capacity } = req.body;
 
-    // Validar campos obrigatórios
-    if (!number || !description || !capacity) {
-      return res
-        .status(400)
-        .json({ error: "Todos os campos devem ser preenchidos" });
+    const validationError = validateClassroom(req.body);
+    if (validationError) {
+      return res.status(400).json(validationError);
     }
-
     try {
       // Verificar se a sala existe
       const findQuery = `SELECT * FROM classroom WHERE number = ?`;
@@ -145,12 +141,10 @@ module.exports = class classroomController {
           // Verificar se existem reservas associadas
           if (reservations.length > 0) {
             // Impedir exclusão e retornar erro
-            return res
-              .status(400)
-              .json({
-                error:
-                  "Não é possível excluir a sala, pois há reservas associadas.",
-              });
+            return res.status(400).json({
+              error:
+                "Não é possível excluir a sala, pois há reservas associadas.",
+            });
           } else {
             // Deletar a sala de aula
             const deleteQuery = `DELETE FROM classroom WHERE number = ?`;
