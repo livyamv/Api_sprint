@@ -21,11 +21,7 @@ router.delete("/classroom/:number", classroomController.deleteClassroom);
 //Schedule
 router.post("/schedule/", scheduleController.createSchedule);
 router.get("/schedule/", scheduleController.getAllSchedules);
-router.get("/schedule/:id", scheduleController.getSchedulesByIdClassroom);
-router.get(
-  "/schedule/ranges/:id",
-  scheduleController.getSchedulesByIdClassroomRanges
-);
+router.put("/schedule/:id", scheduleController.updateSchedule);
 router.delete("/schedule/:id", scheduleController.deleteSchedule);
 
 module.exports = router;

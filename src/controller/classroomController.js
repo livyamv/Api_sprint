@@ -128,7 +128,7 @@ module.exports = class classroomController {
     const classroomId = req.params.number;
     try {
       // Verificar se há reservas associadas à sala
-      const checkReservationsQuery = `SELECT * FROM schedule WHERE classroom = ?`;
+      const checkReservationsQuery = `SELECT * FROM schedule WHERE fk_number = ?`;
       connect.query(
         checkReservationsQuery,
         [classroomId],

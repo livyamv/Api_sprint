@@ -1,341 +1,137 @@
 const connect = require("../db/connect");
 const validateSchedule = require("../services/validateSchedule");
 
-// Verificar se o horário de início de um agendamento está dentro de um intervalo de tempo
-function isInTimeRange(timeStart, timeRange) {
-  const [start, end] = timeRange.split(" - ");
-  const startTime = new Date(`1970-01-01T${start}`).getTime();
-  const endTime = new Date(`1970-01-01T${end}`).getTime();
-  const scheduleTime = new Date(`1970-01-01T${timeStart}`).getTime();
-  return scheduleTime >= startTime && scheduleTime < endTime;
-}
-
 module.exports = class scheduleController {
   static async createSchedule(req, res) {
-    const { dateStart, dateEnd, days, user, classroom, timeStart, timeEnd } =
-      req.body;
-      
-      const validationError = validateSchedule(req.body);
-      if (validationError) {
-        return res.status(400).json(validationError);
-      }
-      
-  // Garante que days seja um array, mesmo que venha como string
-const daysArray = Array.isArray(days) ? days : days.split(", ").map(day => day.trim());
-
-// Converte para string separada por vírgulas
-const daysString = daysArray.join(", ");
-
-
+    const { fk_id_usuario, descricao, inicio_periodo, fim_periodo, fk_number } = req.body;
+  
+    const validationError = validateSchedule(req.body);
+    if (validationError) {
+      return res.status(400).json(validationError);
+    }
+    else{
+    const query = `SELECT * FROM schedule WHERE fk_number = ? 
+      AND (
+        (inicio_periodo < ? AND fim_periodo > ?) OR
+        (inicio_periodo >= ? AND inicio_periodo < ?) OR
+        (fim_periodo > ? AND fim_periodo <= ?)
+      )`;
+  
+    const values = [
+      fk_number,
+      inicio_periodo,
+      fim_periodo,
+      inicio_periodo,
+      fim_periodo,
+      inicio_periodo,
+      fim_periodo,
+    ];
+  
     try {
-      const overlapQuery = `
-    SELECT * FROM schedule
-    WHERE 
-        classroom = '${classroom}'
-        AND (
-            (dateStart <= '${dateEnd}' AND dateEnd >= '${dateStart}')
-        )
-        AND (
-            (timeStart <= '${timeEnd}' AND timeEnd >= '${timeStart}')
-        )
-        AND (
-            (days LIKE '%Seg%' AND '${daysString}' LIKE '%Seg%') OR
-            (days LIKE '%Ter%' AND '${daysString}' LIKE '%Ter%') OR
-            (days LIKE '%Qua%' AND '${daysString}' LIKE '%Qua%') OR 
-            (days LIKE '%Qui%' AND '${daysString}' LIKE '%Qui%') OR
-            (days LIKE '%Sex%' AND '${daysString}' LIKE '%Sex%') OR
-            (days LIKE '%Sab%' AND '${daysString}' LIKE '%Sab%')
-        )`;
-
-      connect.query(overlapQuery, function (err, results) {
+      const [existingSchedules] = await new Promise((resolve, reject) => {
+        connect.query(query, values, (err, results) => {
+          if (err) {
+            reject("Erro ao verificar a disponibilidade da sala!");
+          }
+          resolve(results);
+        });
+      });
+  
+      if (existingSchedules && existingSchedules.length > 0) {
+        return res.status(400).json({ error: "A sala já está reservada nesse horário!" });
+      }
+  
+      const insertQuery = `INSERT INTO schedule (fk_id_usuario, descricao, inicio_periodo, fim_periodo, fk_number) 
+                           VALUES (?, ?, ?, ?, ?)`;
+  
+      const insertValues = [fk_id_usuario, descricao, inicio_periodo, fim_periodo, fk_number];
+  
+      connect.query(insertQuery, insertValues, (err) => {
         if (err) {
           console.log(err);
-          return res
-            .status(500)
-            .json({ error: "Erro ao verificar agendamento existente" });
+          return res.status(500).json({ error: "Erro ao criar o agendamento!" });
         }
-
-        // Se a consulta retornar algum resultado, significa que já existe um agendamento
-        if (results.length > 0) {
-          return res.status(400).json({
-            error:
-              "Já existe um agendamento para os mesmos dias, sala e horários",
-          });
-        }
-
-        // Caso contrário, prossegue com a inserção na tabela
-        const insertQuery = `
-                INSERT INTO schedule (dateStart, dateEnd, days, user, classroom, timeStart, timeEnd)
-                VALUES (
-                    '${dateStart}',
-                    '${dateEnd}',
-                    '${daysString}',
-                    '${user}',
-                    '${classroom}',
-                    '${timeStart}',
-                    '${timeEnd}'
-                )
-            `;
-
-        // Executa a consulta de inserção
-        connect.query(insertQuery, function (err) {
-          if (err) {
-            console.log(err);
-            return res
-              .status(500)
-              .json({ error: "Erro ao cadastrar agendamento" });
-          }
-          console.log("Agendamento cadastrado com sucesso");
-          return res
-            .status(201)
-            .json({ message: "Agendamento cadastrado com sucesso" });
-        });
+        return res.status(201).json({ message: "Reserva criada com sucesso!" });
       });
     } catch (error) {
-      console.error("Erro ao executar a consulta:", error);
-      res.status(500).json({ error: "Erro interno do servidor" });
-    }
+      return res.status(500).json({ error: error.message });
+    }}
   }
-
-  static async getSchedulesByIdClassroomRanges(req, res) {
-    const classroomID = req.params.id;
-    const { weekStart, weekEnd } = req.query; // Variavel para armazenar a semana selecionada
-    console.log(weekStart+' '+weekEnd)
-    // Consulta SQL para obter todos os agendamentos para uma determinada sala de aula
-    const query = `
-    SELECT schedule.*, user.name AS userName
-    FROM schedule
-    JOIN user ON schedule.user = user.cpf
-    WHERE classroom = '${classroomID}'
-    AND (dateStart <= '${weekEnd}' AND dateEnd >= '${weekStart}')
-`;
-
-
-
-    try {
-      // Executa a consulta
-      connect.query(query, function (err, results) {
-        if (err) {
-          console.error(err);
-          return res.status(500).json({ error: "Erro interno do servidor" });
-        }
-
-        // Objeto para armazenar os agendamentos organizados por dia da semana e intervalo de horário
-        const schedulesByDayAndTimeRange = {
-          Seg: {
-            "07:30 - 09:30": [],
-            "09:30 - 11:30": [],
-            "12:30 - 15:30": [],
-            "15:30 - 17:30": [],
-            "19:00 - 22:00": [],
-          },
-          Ter: {
-            "07:30 - 09:30": [],
-            "09:30 - 11:30": [],
-            "12:30 - 15:30": [],
-            "15:30 - 17:30": [],
-            "19:00 - 22:00": [],
-          },
-          Qua: {
-            "07:30 - 09:30": [],
-            "09:30 - 11:30": [],
-            "12:30 - 15:30": [],
-            "15:30 - 17:30": [],
-            "19:00 - 22:00": [],
-          },
-          Qui: {
-            "07:30 - 09:30": [],
-            "09:30 - 11:30": [],
-            "12:30 - 15:30": [],
-            "15:30 - 17:30": [],
-            "19:00 - 22:00": [],
-          },
-          Sex: {
-            "07:30 - 09:30": [],
-            "09:30 - 11:30": [],
-            "12:30 - 15:30": [],
-            "15:30 - 17:30": [],
-            "19:00 - 22:00": [],
-          },
-          Sab: {
-            "07:30 - 09:30": [],
-            "09:30 - 11:30": [],
-            "12:30 - 15:30": [],
-            "15:30 - 17:30": [],
-            "19:00 - 22:00": [],
-          },
-        };
-
-        // Organiza os agendamentos pelos dias da semana e intervalo de horário
-        results.forEach((schedule) => {
-          const days = schedule.days.split(", ");
-          const timeRanges = [
-            "07:30 - 09:30",
-            "09:30 - 11:30",
-            "12:30 - 15:30",
-            "15:30 - 17:30",
-            "19:00 - 22:00",
-          ];
-          days.forEach((day) => {
-            timeRanges.forEach((timeRange) => {
-              if (isInTimeRange(schedule.timeStart, timeRange)) {
-                schedulesByDayAndTimeRange[day][timeRange].push(schedule);
-              }
-            });
-          });
-        });
-
-        // Ordena os agendamentos dentro de cada lista com base no timeStart
-        Object.keys(schedulesByDayAndTimeRange).forEach((day) => {
-          Object.keys(schedulesByDayAndTimeRange[day]).forEach((timeRange) => {
-            schedulesByDayAndTimeRange[day][timeRange].sort((a, b) => {
-              const timeStartA = new Date(`1970-01-01T${a.timeStart}`);
-              const timeStartB = new Date(`1970-01-01T${b.timeStart}`);
-              return timeStartA - timeStartB;
-            });
-          });
-        });
-
-        // Retorna os agendamentos organizados por dia da semana e intervalo de horário
-        return res.status(200).json({ schedulesByDayAndTimeRange });
-      });
-    } catch (error) {
-      console.error("Erro ao executar a consulta:", error);
-      return res.status(500).json({ error: "Erro interno do servidor" });
-    }
-  }
-
-  static async getSchedulesByIdClassroom(req, res) {
-    const classroomID = req.params.id;
-
-    // Consulta SQL para obter todos os agendamentos para uma determinada sala de aula
-    const query = `
-  SELECT schedule.*, user.name AS userName
-  FROM schedule
-  JOIN user ON schedule.user = user.cpf
-  WHERE classroom = '${classroomID}'
-`;
-
-    try {
-      connect.query(query, function (err, results) {
-        if (err) {
-          console.error(err);
-          return res.status(500).json({ error: "Erro interno do servidor" });
-        }
-
-        // Objeto para armazenar os agendamentos organizados por dia da semana
-        const schedulesByDay = {
-          Seg: [],
-          Ter: [],
-          Qua: [],
-          Qui: [],
-          Sex: [],
-          Sab: [],
-        };
-
-        // Organiza os agendamentos pelos dias da semana
-        results.forEach((schedule) => {
-          const days = schedule.days.split(", ");
-          days.forEach((day) => {
-            if (!schedulesByDay[day]) return; // Apenas ignora dias inválidos
-            schedulesByDay[day].push(schedule);
-          });
-        });
-        
-
-        // Ordena os agendamentos dentro de cada lista com base no timeStart
-        Object.keys(schedulesByDay).forEach((day) => {
-          schedulesByDay[day].sort((a, b) => {
-            const timeStartA = new Date(`1970-01-01T${a.timeStart}`);
-            const timeStartB = new Date(`1970-01-01T${b.timeStart}`);
-            return timeStartA - timeStartB;
-          });
-        });
-
-        // Retorna os agendamentos organizados por dia da semana e ordenados por timeStart
-        return res.status(200).json({ schedulesByDay });
-      });
-    } catch (error) {
-      console.error("Erro ao executar a consulta:", error);
-      return res.status(500).json({ error: "Erro interno do servidor" });
-    }
-  }
+  
 
   static async getAllSchedules(req, res) {
-    try {
-      // Consulta SQL para obter todos os agendamentos
-      const query = `
-      SELECT schedule.*, user.name AS userName
-      FROM schedule
-      JOIN user ON schedule.user = user.cpf
-    `;
+    const query = `SELECT * FROM schedule`;
 
+    try {
       connect.query(query, function (err, results) {
         if (err) {
           console.error(err);
           return res.status(500).json({ error: "Erro interno do servidor" });
         }
 
-        // Objeto para armazenar os agendamentos organizados por dia da semana
-        const schedulesByDay = {
-          Seg: [],
-          Ter: [],
-          Qua: [],
-          Qui: [],
-          Sex: [],
-          Sab: [],
-        };
-
-        // Organiza os agendamentos pelos dias da semana
-        results.forEach((schedule) => {
-          const days = schedule.days.split(", ");
-          days.forEach((day) => {
-            if (!schedulesByDay[day]) return; // Apenas ignora dias inválidos
-            schedulesByDay[day].push(schedule);
-          });
+        return res.status(200).json({
+          message: "Todas as reservas",
+          schedules: results,
         });
-
-        // Ordena os agendamentos dentro de cada lista com base no timeStart
-        Object.keys(schedulesByDay).forEach((day) => {
-          schedulesByDay[day].sort((a, b) => {
-            const timeStartA = new Date(`1970-01-01T${a.timeStart}`);
-            const timeStartB = new Date(`1970-01-01T${b.timeStart}`);
-            return timeStartA - timeStartB;
-          });
-        });
-
-        // Retorna os agendamentos organizados por dia da semana e ordenados por timeStart
-        return res.status(200).json({ schedulesByDay });
       });
     } catch (error) {
       console.error("Erro ao executar a consulta:", error);
       return res.status(500).json({ error: "Erro interno do servidor" });
+    }
+  }
+
+  static async updateSchedule(req, res) {
+    const { id_schedule, fk_id_usuario, descricao, inicio_periodo, fim_periodo, fk_number } = req.body;
+
+    // Valida os campos do agendamento
+    const validationError = validateSchedule(req.body);
+    if (validationError) {
+      return res.status(400).json(validationError);
+    }
+
+    const query = `UPDATE schedule SET fk_id_usuario = ?, descricao = ?, inicio_periodo = ?, fim_periodo = ?, fk_number = ? 
+                   WHERE id_schedule = ?`;
+    const values = [fk_id_usuario, descricao, inicio_periodo, fim_periodo, fk_number, id_schedule];
+
+    try {
+      connect.query(query, values, (err, results) => {
+        if (err) {
+          console.log(err);
+          return res.status(500).json({ error: "Erro ao atualizar o agendamento!" });
+        }
+
+        if (results.affectedRows === 0) {
+          return res.status(404).json({ error: "Agendamento não encontrado!" });
+        }
+
+        return res.status(200).json({ message: "Agendamento atualizado com sucesso!" });
+      });
+    } catch (error) {
+      return res.status(500).json({ error });
     }
   }
 
   static async deleteSchedule(req, res) {
-    const scheduleId = req.params.id;
-    const query = `DELETE FROM schedule WHERE id = ?`;
-    const values = [scheduleId];
+    const idSchedule = req.params.id;
+
+    const query = `DELETE FROM schedule WHERE id_schedule = ?`;
 
     try {
-      connect.query(query, values, function (err, results) {
+      connect.query(query, idSchedule, (err, results) => {
         if (err) {
-          console.error(err);
-          return res.status(500).json({ error: "Erro interno do servidor" });
+          console.log(err);
+          return res.status(500).json({ error: "Erro ao excluir reserva!" });
         }
 
         if (results.affectedRows === 0) {
-          return res.status(404).json({ error: "Agendamento não encontrado" });
+          return res.status(404).json({ error: "Reserva não encontrada!" });
         }
 
-        return res
-          .status(200)
-          .json({ message: "Agendamento excluído com ID: " + scheduleId });
+        return res.status(200).json({ message: "Reserva excluída com sucesso!" });
       });
     } catch (error) {
-      console.error("Erro ao executar a consulta:", error);
-      return res.status(500).json({ error: "Erro interno do servidor" });
+      console.log("Erro ao executar a consulta!", error);
+      return res.status(500).json({ error: "Erro interno do servidor!" });
     }
   }
 };

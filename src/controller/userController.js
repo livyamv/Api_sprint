@@ -67,7 +67,7 @@ module.exports = class userController {
     }
   }
   static async updateUser(req, res) {
-    const { name, cpf, email, password, id } = req.body;
+    const { name, cpf, email, password,id } = req.body;
 
     const validationError = validateUser(req.body);
     if (validationError) {
