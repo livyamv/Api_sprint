@@ -4,18 +4,18 @@ const validateCpf = require("../services/validateCpf");
 
 module.exports = class userController {
   static async createUser(req, res) {
-    const { name, cpf, email, password} = req.body;
+    const { name, cpf, email, password } = req.body;
 
     const validationError = validateUser(req.body);
     if (validationError) {
       return res.status(400).json(validationError);
     }
 
-    try {      
+    try {
       const cpfError = await validateCpf(cpf);
       if (cpfError) {
         return res.status(400).json(cpfError);
-      }      
+      }
 
       const query = `INSERT INTO user (name, cpf, email, password) VALUES ( 
         '${name}', 
@@ -23,26 +23,22 @@ module.exports = class userController {
         '${email}', 
         '${password}'
       )`;
-      connect.query(
-        query,
-        [name, cpf, email, password],
-        (err) => {
-          if (err) {
-            if (err.code === "ER_DUP_ENTRY") {
-              if (err.message.includes("for key 'email'")) {
-                return res.status(400).json({ error: "Email já cadastrado" });
-              }
-            } else {
-              return res
-                .status(500)
-                .json({ error: "Erro interno do servidor", err });
+      connect.query(query, [name, cpf, email, password], (err) => {
+        console.log(err);
+        if (err) {
+          if (err.code === "ER_DUP_ENTRY") {            
+            if (err.message.includes("for key 'user.email'")) {
+              console.log("Entrou aqui email!!!");
+              return res.status(400).json({ error: "Email já cadastrado" });
             }
+          } else {
+            return res
+              .status(500)
+              .json({ error: "Erro interno do servidor", err });
           }
-          return res
-            .status(201)
-            .json({ message: "Usuário criado com sucesso" });
         }
-      );
+        return res.status(201).json({ message: "Usuário criado com sucesso" });
+      });
     } catch (error) {
       return res.status(500).json({ error });
     }
@@ -67,7 +63,7 @@ module.exports = class userController {
     }
   }
   static async updateUser(req, res) {
-    const { name, cpf, email, password,id } = req.body;
+    const { name, cpf, email, password, id } = req.body;
 
     const validationError = validateUser(req.body);
     if (validationError) {
