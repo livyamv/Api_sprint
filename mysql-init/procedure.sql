@@ -13,5 +13,5 @@ end; //
 
 delimiter ;
 
-call total_reservas_usuario(8, @total);  
+call total_reservas_usuario(2, @total);  
 select @total as Total_de_reservas;
