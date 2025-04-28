@@ -3,25 +3,26 @@ const router = require("express").Router();
 const userController = require("../controller/userController");
 const classroomController = require("../controller/classroomController");
 const scheduleController = require("../controller/scheduleController");
+const verifyJWT = require('../services/verifyJWT');
 
 //User
 router.post("/user/", userController.createUser);
 router.post("/user/login", userController.loginUser);
-router.get("/user/", userController.getAllUsers);
-router.put("/user/:id", userController.updateUser);
-router.delete("/user/:id", userController.deleteUser);
+router.get("/user/", verifyJWT, userController.getAllUsers);
+router.put("/user/", verifyJWT, userController.updateUser);
+router.delete("/user/:id", verifyJWT,userController.deleteUser);
 
 //Classroom
-router.post("/classroom/", classroomController.createClassroom);
+router.post("/classroom/", verifyJWT,classroomController.createClassroom);
 router.get("/classroom/", classroomController.getAllClassrooms);
-router.get("/classroom/:number", classroomController.getClassroomById);
-router.put("/classroom/", classroomController.updateClassroom);
-router.delete("/classroom/:number", classroomController.deleteClassroom);
+router.get("/classroom/:number", verifyJWT,classroomController.getClassroomById);
+router.put("/classroom/", verifyJWT,classroomController.updateClassroom);
+router.delete("/classroom/:number", verifyJWT,classroomController.deleteClassroom);
 
 //Schedule
 router.post("/schedule/", scheduleController.createSchedule);
-router.get("/schedule/", scheduleController.getAllSchedules);
-router.put("/schedule/:id", scheduleController.updateSchedule);
-router.delete("/schedule/:id", scheduleController.deleteSchedule);
+router.get("/schedule/", verifyJWT,scheduleController.getAllSchedules);
+router.put("/schedule/:id", verifyJWT,scheduleController.updateSchedule);
+router.delete("/schedule/:id", verifyJWT,scheduleController.deleteSchedule);
 
 module.exports = router;
