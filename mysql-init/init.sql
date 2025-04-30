@@ -61,7 +61,7 @@ CREATE TABLE `schedule` (
   KEY `fk_number` (`fk_number`),
   CONSTRAINT `schedule_ibfk_1` FOREIGN KEY (`fk_id_usuario`) REFERENCES `user` (`id_usuario`),
   CONSTRAINT `schedule_ibfk_2` FOREIGN KEY (`fk_number`) REFERENCES `classroom` (`number`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=14 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -70,7 +70,33 @@ CREATE TABLE `schedule` (
 
 LOCK TABLES `schedule` WRITE;
 /*!40000 ALTER TABLE `schedule` DISABLE KEYS */;
+INSERT INTO `schedule` VALUES (4,2,'A2','asdfghjkl','2025-02-20 21:00:00','2025-02-20 22:00:00'),(5,1,'A2','asdfghjkl','2025-02-20 14:00:00','2025-02-20 15:00:00'),(7,1,'b7','Reunião de equipe','2025-05-01 10:00:00','2025-05-01 11:00:00'),(8,1,'A2','aulas','2025-05-04 11:00:00','2025-05-04 12:00:00'),(9,3,'c3','Ffdffffdr','2025-02-02 13:00:00','2025-02-02 14:00:00'),(10,1,'C2','Eeeee3','2025-02-02 13:22:00','2025-02-02 13:56:00'),(11,1,'MONT1','Project ','2025-02-02 10:00:00','2025-02-02 11:00:00'),(12,1,'MONT1','Ui','2025-02-02 10:00:00','2025-02-02 11:00:00'),(13,1,'A2','asdfghjkl','2025-02-20 14:00:00','2025-02-20 15:00:00');
 /*!40000 ALTER TABLE `schedule` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `time_slots`
+--
+
+DROP TABLE IF EXISTS `time_slots`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `time_slots` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `start_time` time NOT NULL,
+  `end_time` time NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=31 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `time_slots`
+--
+
+LOCK TABLES `time_slots` WRITE;
+/*!40000 ALTER TABLE `time_slots` DISABLE KEYS */;
+INSERT INTO `time_slots` VALUES (1,'07:30:00','08:00:00'),(2,'08:00:00','08:30:00'),(3,'08:30:00','09:00:00'),(4,'09:00:00','09:30:00'),(5,'09:30:00','10:00:00'),(6,'10:00:00','10:30:00'),(7,'10:30:00','11:00:00'),(8,'11:00:00','11:30:00'),(9,'11:30:00','12:00:00'),(10,'12:00:00','12:30:00'),(11,'12:30:00','13:00:00'),(12,'13:00:00','13:30:00'),(13,'13:30:00','14:00:00'),(14,'14:00:00','14:30:00'),(15,'14:30:00','15:00:00'),(16,'15:00:00','15:30:00'),(17,'15:30:00','16:00:00'),(18,'16:00:00','16:30:00'),(19,'16:30:00','17:00:00'),(20,'17:00:00','17:30:00'),(21,'17:30:00','18:00:00'),(22,'18:00:00','18:30:00'),(23,'18:30:00','19:00:00'),(24,'19:00:00','19:30:00'),(25,'19:30:00','20:00:00'),(26,'20:00:00','20:30:00'),(27,'20:30:00','21:00:00'),(28,'21:00:00','21:30:00'),(29,'21:30:00','22:00:00'),(30,'22:00:00','22:30:00');
+/*!40000 ALTER TABLE `time_slots` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -89,7 +115,7 @@ CREATE TABLE `user` (
   PRIMARY KEY (`id_usuario`),
   UNIQUE KEY `cpf` (`cpf`),
   UNIQUE KEY `email` (`email`)
-) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=12 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -109,6 +135,38 @@ UNLOCK TABLES;
 --
 -- Dumping routines for database 'agenda_senai'
 --
+/*!50003 DROP FUNCTION IF EXISTS `proxima_disponibilidade_sala` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8mb4 */ ;
+/*!50003 SET character_set_results = utf8mb4 */ ;
+/*!50003 SET collation_connection  = utf8mb4_0900_ai_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+CREATE DEFINER=`alunods`@`%` FUNCTION `proxima_disponibilidade_sala`(
+    p_fk_number VARCHAR(20),
+    p_a_partir DATETIME
+) RETURNS datetime
+    DETERMINISTIC
+BEGIN
+    DECLARE proximo_horario DATETIME;
+
+    -- Verifica o fim da última reserva após o horário especificado
+    SELECT COALESCE(MAX(fim_periodo), p_a_partir)
+    INTO proximo_horario
+    FROM schedule
+    WHERE fk_number = p_fk_number
+      AND fim_periodo > p_a_partir;
+
+    RETURN proximo_horario;
+END ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
@@ -119,4 +177,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-03-31 10:16:16
+-- Dump completed on 2025-04-30 16:28:35

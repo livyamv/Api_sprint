@@ -94,31 +94,29 @@ module.exports = class scheduleController {
 
   static async getSalasSemReservas(req, res) {
     const query = `
-      SELECT c.number
+      SELECT c.number, c.description, c.capacity
       FROM classroom c
       LEFT JOIN schedule s ON c.number = s.fk_number
       WHERE s.fk_number IS NULL;
     `;
 
     try {
-      const results = await new Promise((resolve, reject) => {
-        connect.query(query, (err, results) => {
-          if (err) {
-            return reject(err);
-          }
-          resolve(results);
-        });
-      });
+      connect.query(query, function (err, results) {
+        if (err) {
+          console.error(err);
+          return res.status(500).json({ error: "Erro interno do servidor" });
+        }
 
-      if (results.length === 0) {
-        return res.status(404).json({
-          message: "Não há salas disponíveis sem reservas.",
-        });
-      }
+        if (results.length === 0) {
+          return res.status(404).json({
+            message: "Não há salas disponíveis sem reservas.",
+          });
+        }
 
-      return res.status(200).json({
-        message: "Salas sem reservas",
-        classrooms: results,
+        return res.status(200).json({
+          message: "Salas disponíveis para reserva",
+          classrooms: results,
+        });
       });
     } catch (error) {
       console.error("Erro ao executar a consulta:", error);
