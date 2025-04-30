@@ -1,4 +1,4 @@
-DELIMITER $$
+delimiter $$
 
 create function verifica_disponibilidade_sala(
     p_fk_number varchar(20),
@@ -29,3 +29,30 @@ end; $$
 delimiter ;
 
 select verifica_disponibilidade_sala('B6', '2025-04-25 14:00:00', '2025-04-25 14:30:00') as Disponibilidade;
+
+
+DELIMITER $$
+
+CREATE FUNCTION proxima_disponibilidade_sala(
+    p_fk_number VARCHAR(20),
+    p_a_partir DATETIME
+) RETURNS DATETIME
+DETERMINISTIC
+BEGIN
+    DECLARE proximo_horario DATETIME;
+
+    -- Verifica o fim da última reserva após o horário especificado
+    SELECT COALESCE(MAX(fim_periodo), p_a_partir)
+    INTO proximo_horario
+    FROM schedule
+    WHERE fk_number = p_fk_number
+      AND fim_periodo > p_a_partir;
+
+    RETURN proximo_horario;
+END $$
+
+DELIMITER ;
+
+
+-- Exemplo de uso:
+select proxima_disponibilidade_sala('A3', '2025-02-20 14:00:00') as ProximaDisponibilidade;
