@@ -144,8 +144,8 @@ module.exports = class userController {
           return res.status(401).json({ error: "Senha incorreta" });
         }
 
-        const token = jwt.sign({ id: user.id_usuario }, process.env.SECRET, {
-          expiresIn: "1h",
+        const token = jwt.sign({ id: user.id_usuario }, process.env.SECRET, { //(payload:id_user - dado que é guardado), secret, options
+          expiresIn: "1h", //o token ira expirar em uma hora
         });
 
         // Remove um atributo de um objeto

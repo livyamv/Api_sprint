@@ -23,6 +23,7 @@ router.delete("/classroom/:number", verifyJWT,classroomController.deleteClassroo
 router.post("/schedule/", scheduleController.createSchedule);
 router.get("/schedule/", verifyJWT,scheduleController.getAllSchedules);
 router.get("/disponibilidade/", scheduleController.getSalasSemReservas);
+// router.get("/disponibilidade/", scheduleController.getHorariosDisponiveisPorSalaEData);
 router.put("/schedule/:id", verifyJWT,scheduleController.updateSchedule);
 router.delete("/schedule/:id", verifyJWT,scheduleController.deleteSchedule);
 
