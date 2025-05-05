@@ -95,7 +95,7 @@ CREATE TABLE `time_slots` (
 
 LOCK TABLES `time_slots` WRITE;
 /*!40000 ALTER TABLE `time_slots` DISABLE KEYS */;
-INSERT INTO `time_slots` VALUES
+INSERT INTO `time_slots` (start_time, end_time) VALUES
 ('07:30:00', '08:30:00'),
 ('08:00:00', '09:00:00'),
 ('08:30:00', '09:30:00'),

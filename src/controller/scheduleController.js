@@ -92,30 +92,46 @@ module.exports = class scheduleController {
     }
   }
 
-  static async getSalasSemReservas(req, res) {
-    const query = `
-      SELECT c.number, c.description, c.capacity
-      FROM classroom c
-      LEFT JOIN schedule s ON c.number = s.fk_number
-      WHERE s.fk_number IS NULL;
-    `;
 
+  static async getHorariosDisponiveisPorSalaEData(req, res) {
+    const { fk_number, date } = req.params;
+  
+    if (!fk_number || !date) {
+      return res.status(400).json({ error: "Número da sala e data são obrigatórios." });
+    }
+  
+    const query = `
+      SELECT ts.id, ts.start_time, ts.end_time
+      FROM time_slots ts
+      WHERE NOT EXISTS (
+        SELECT 1
+        FROM schedule s
+        WHERE s.fk_number = ?
+          AND DATE(s.inicio_periodo) = ?
+          AND (
+            TIME(s.inicio_periodo) < ts.end_time AND
+            TIME(s.fim_periodo) > ts.start_time
+          )
+      )
+      ORDER BY ts.start_time;
+    `;
+  
     try {
-      connect.query(query, function (err, results) {
+      connect.query(query, [fk_number, date], function (err, results) {
         if (err) {
-          console.error(err);
+          console.error("Erro ao consultar horários disponíveis:", err);
           return res.status(500).json({ error: "Erro interno do servidor" });
         }
-
+  
         if (results.length === 0) {
           return res.status(404).json({
-            message: "Não há salas disponíveis sem reservas.",
+            message: "Nenhum horário disponível para essa sala e data.",
           });
         }
-
+  
         return res.status(200).json({
-          message: "Salas disponíveis para reserva",
-          classrooms: results,
+          message: "Horários disponíveis para reserva",
+          time_slots: results,
         });
       });
     } catch (error) {
@@ -123,53 +139,6 @@ module.exports = class scheduleController {
       return res.status(500).json({ error: "Erro interno do servidor" });
     }
   }
-
-  // static async getHorariosDisponiveisPorSalaEData(req, res) {
-  //   const { fk_number, date } = req.query;
-  
-  //   if (!fk_number || !date) {
-  //     return res.status(400).json({ error: "Número da sala e data são obrigatórios." });
-  //   }
-  
-  //   const query = `
-  //     SELECT ts.id, ts.start_time, ts.end_time
-  //     FROM time_slots ts
-  //     WHERE NOT EXISTS (
-  //       SELECT 1
-  //       FROM schedule s
-  //       WHERE s.fk_number = ?
-  //         AND DATE(s.inicio_periodo) = ?
-  //         AND (
-  //           TIME(s.inicio_periodo) < ts.end_time AND
-  //           TIME(s.fim_periodo) > ts.start_time
-  //         )
-  //     )
-  //     ORDER BY ts.start_time;
-  //   `;
-  
-  //   try {
-  //     connect.query(query, [fk_number, date], function (err, results) {
-  //       if (err) {
-  //         console.error("Erro ao consultar horários disponíveis:", err);
-  //         return res.status(500).json({ error: "Erro interno do servidor" });
-  //       }
-  
-  //       if (results.length === 0) {
-  //         return res.status(404).json({
-  //           message: "Nenhum horário disponível para essa sala e data.",
-  //         });
-  //       }
-  
-  //       return res.status(200).json({
-  //         message: "Horários disponíveis para reserva",
-  //         time_slots: results,
-  //       });
-  //     });
-  //   } catch (error) {
-  //     console.error("Erro ao executar a consulta:", error);
-  //     return res.status(500).json({ error: "Erro interno do servidor" });
-  //   }
-  // }
   
 
   static async updateSchedule(req, res) {
