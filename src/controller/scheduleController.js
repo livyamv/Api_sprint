@@ -94,12 +94,14 @@ module.exports = class scheduleController {
 
 
   static async getHorariosDisponiveisPorSalaEData(req, res) {
+    // parâmetros número da sala e data
     const { fk_number, date } = req.params;
   
     if (!fk_number || !date) {
       return res.status(400).json({ error: "Número da sala e data são obrigatórios." });
     }
   
+    // retorna todos os horários disponíveis
     const query = `
       SELECT ts.id, ts.start_time, ts.end_time
       FROM time_slots ts
