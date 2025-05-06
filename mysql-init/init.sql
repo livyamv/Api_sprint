@@ -164,38 +164,7 @@ UNLOCK TABLES;
 --
 -- Dumping routines for database 'agenda_senai'
 --
-/*!50003 DROP FUNCTION IF EXISTS `proxima_disponibilidade_sala` */;
-/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
-/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
-/*!50003 SET @saved_col_connection = @@collation_connection */ ;
-/*!50003 SET character_set_client  = utf8mb4 */ ;
-/*!50003 SET character_set_results = utf8mb4 */ ;
-/*!50003 SET collation_connection  = utf8mb4_0900_ai_ci */ ;
-/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
-/*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
-DELIMITER ;;
-CREATE DEFINER=`alunods`@`%` FUNCTION `proxima_disponibilidade_sala`(
-    p_fk_number VARCHAR(20),
-    p_a_partir DATETIME
-) RETURNS datetime
-    DETERMINISTIC
-BEGIN
-    DECLARE proximo_horario DATETIME;
 
-    -- Verifica o fim da última reserva após o horário especificado
-    SELECT COALESCE(MAX(fim_periodo), p_a_partir)
-    INTO proximo_horario
-    FROM schedule
-    WHERE fk_number = p_fk_number
-      AND fim_periodo > p_a_partir;
-
-    RETURN proximo_horario;
-END ;;
-DELIMITER ;
-/*!50003 SET sql_mode              = @saved_sql_mode */ ;
-/*!50003 SET character_set_client  = @saved_cs_client */ ;
-/*!50003 SET character_set_results = @saved_cs_results */ ;
-/*!50003 SET collation_connection  = @saved_col_connection */ ;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
