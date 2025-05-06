@@ -13,17 +13,17 @@ router.put("/user/", verifyJWT, userController.updateUser);
 router.delete("/user/:id", verifyJWT,userController.deleteUser);
 
 //Classroom
-router.post("/classroom/", verifyJWT,classroomController.createClassroom);
+router.post("/classroom/", classroomController.createClassroom);
 router.get("/classroom/", classroomController.getAllClassrooms);
-router.get("/classroom/:number", verifyJWT,classroomController.getClassroomById);
-router.put("/classroom/", verifyJWT,classroomController.updateClassroom);
-router.delete("/classroom/:number", verifyJWT,classroomController.deleteClassroom);
+router.get("/classroom/:number", classroomController.getClassroomById);
+router.put("/classroom/", classroomController.updateClassroom);
+router.delete("/classroom/:number", classroomController.deleteClassroom);
 
 //Schedule
 router.post("/schedule/", scheduleController.createSchedule);
-router.get("/schedule/", verifyJWT,scheduleController.getAllSchedules);
+router.get("/schedule/", scheduleController.getAllSchedules);
 router.get("/disponibilidade/:fk_number/:date", scheduleController.getHorariosDisponiveisPorSalaEData);
-router.put("/schedule/", verifyJWT,scheduleController.updateSchedule);
-router.delete("/schedule/:id", verifyJWT,scheduleController.deleteSchedule);
+router.put("/schedule/", scheduleController.updateSchedule);
+router.delete("/schedule/:id", scheduleController.deleteSchedule);
 
 module.exports = router;
