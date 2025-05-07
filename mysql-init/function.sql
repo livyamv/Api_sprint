@@ -5,7 +5,8 @@ create function verifica_disponibilidade_sala(
     p_inicio datetime,
     p_fim datetime
 ) returns varchar(20)
-deterministic   -- dada a mesma entrada, a função sempre retorna o mesmo resultado
+not deterministic   -- dada a mesma entrada, a função sempre retorna o mesmo resultado
+    reads sql data
 begin
     declare disponivel int;
 
