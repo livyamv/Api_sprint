@@ -20,10 +20,10 @@ router.put("/classroom/", classroomController.updateClassroom);
 router.delete("/classroom/:number", classroomController.deleteClassroom);
 
 //Schedule
-router.post("/schedule/", scheduleController.createSchedule);
-router.get("/schedule/", scheduleController.getAllSchedules);
-router.get("/disponibilidade/:fk_number/:date", scheduleController.getHorariosDisponiveisPorSalaEData);
-router.put("/schedule/", scheduleController.updateSchedule);
-router.delete("/schedule/:id", scheduleController.deleteSchedule);
+router.post("/schedule/", verifyJWT, scheduleController.createSchedule);
+router.get("/schedule/", verifyJWT, scheduleController.getAllSchedules);
+router.get("/disponibilidade/:fk_number/:date", verifyJWT, scheduleController.getHorariosDisponiveisPorSalaEData);
+router.put("/schedule/", verifyJWT, scheduleController.updateSchedule);
+router.delete("/schedule/:id", verifyJWT, scheduleController.deleteSchedule);
 
 module.exports = router;

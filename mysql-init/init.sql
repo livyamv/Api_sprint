@@ -18,6 +18,36 @@ USE `agenda_senai`;
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
 --
+-- Table structure for table `cancelamento_reserva`
+--
+
+DROP TABLE IF EXISTS `cancelamento_reserva`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `cancelamento_reserva` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `id_schedule` int DEFAULT NULL,
+  `fk_id_usuario` int DEFAULT NULL,
+  `fk_number` char(5) DEFAULT NULL,
+  `descricao` varchar(255) DEFAULT NULL,
+  `inicio_periodo` datetime DEFAULT NULL,
+  `fim_periodo` datetime DEFAULT NULL,
+  `cancelado_em` datetime DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `cancelamento_reserva`
+--
+
+LOCK TABLES `cancelamento_reserva` WRITE;
+/*!40000 ALTER TABLE `cancelamento_reserva` DISABLE KEYS */;
+INSERT INTO `cancelamento_reserva` VALUES (1,13,1,'A2','asdfghjkl','2025-02-20 14:00:00','2025-02-20 15:00:00','2025-05-21 16:11:33');
+/*!40000 ALTER TABLE `cancelamento_reserva` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Table structure for table `classroom`
 --
 
@@ -70,9 +100,41 @@ CREATE TABLE `schedule` (
 
 LOCK TABLES `schedule` WRITE;
 /*!40000 ALTER TABLE `schedule` DISABLE KEYS */;
-INSERT INTO `schedule` VALUES (4,2,'A2','asdfghjkl','2025-02-20 21:00:00','2025-02-20 22:00:00'),(5,1,'A2','asdfghjkl','2025-02-20 14:00:00','2025-02-20 15:00:00'),(7,1,'b7','Reunião de equipe','2025-05-01 10:00:00','2025-05-01 11:00:00'),(8,1,'A2','aulas','2025-05-04 11:00:00','2025-05-04 12:00:00'),(9,3,'c3','Ffdffffdr','2025-02-02 13:00:00','2025-02-02 14:00:00'),(10,1,'C2','Eeeee3','2025-02-02 13:22:00','2025-02-02 13:56:00'),(11,1,'MONT1','Project ','2025-02-02 10:00:00','2025-02-02 11:00:00'),(12,1,'MONT1','Ui','2025-02-02 10:00:00','2025-02-02 11:00:00'),(13,1,'A2','asdfghjkl','2025-02-20 14:00:00','2025-02-20 15:00:00');
+INSERT INTO `schedule` VALUES (4,2,'A2','asdfghjkl','2025-02-20 21:00:00','2025-02-20 22:00:00'),(5,1,'A2','asdfghjkl','2025-02-20 14:00:00','2025-02-20 15:00:00'),(7,1,'b7','Reunião de equipe','2025-05-01 10:00:00','2025-05-01 11:00:00'),(8,1,'A2','aulas','2025-05-04 11:00:00','2025-05-04 12:00:00'),(9,3,'c3','Ffdffffdr','2025-02-02 13:00:00','2025-02-02 14:00:00'),(10,1,'C2','Eeeee3','2025-02-02 13:22:00','2025-02-02 13:56:00'),(11,1,'MONT1','Project ','2025-02-02 10:00:00','2025-02-02 11:00:00'),(12,1,'MONT1','Ui','2025-02-02 10:00:00','2025-02-02 11:00:00');
 /*!40000 ALTER TABLE `schedule` ENABLE KEYS */;
 UNLOCK TABLES;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8mb4 */ ;
+/*!50003 SET character_set_results = utf8mb4 */ ;
+/*!50003 SET collation_connection  = utf8mb4_0900_ai_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+/*!50003 CREATE*/ /*!50017 DEFINER=`root`@`localhost`*/ /*!50003 TRIGGER `cancelamento_reserva` AFTER DELETE ON `schedule` FOR EACH ROW BEGIN
+  INSERT INTO cancelamento_reserva (
+    id_schedule,
+    fk_id_usuario,
+    fk_number,
+    descricao,
+    inicio_periodo,
+    fim_periodo
+  )
+  VALUES (
+    OLD.id_schedule,
+    OLD.fk_id_usuario,
+    OLD.fk_number,
+    OLD.descricao,
+    OLD.inicio_periodo,
+    OLD.fim_periodo
+  );
+END */;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
 
 --
 -- Table structure for table `time_slots`
@@ -86,7 +148,7 @@ CREATE TABLE `time_slots` (
   `start_time` time NOT NULL,
   `end_time` time NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=31 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=60 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -95,36 +157,7 @@ CREATE TABLE `time_slots` (
 
 LOCK TABLES `time_slots` WRITE;
 /*!40000 ALTER TABLE `time_slots` DISABLE KEYS */;
-INSERT INTO `time_slots` (start_time, end_time) VALUES
-('07:30:00', '08:30:00'),
-('08:00:00', '09:00:00'),
-('08:30:00', '09:30:00'),
-('09:00:00', '10:00:00'),
-('09:30:00', '10:30:00'),
-('10:00:00', '11:00:00'),
-('10:30:00', '11:30:00'),
-('11:00:00', '12:00:00'),
-('11:30:00', '12:30:00'),
-('12:00:00', '13:00:00'),
-('12:30:00', '13:30:00'),
-('13:00:00', '14:00:00'),
-('13:30:00', '14:30:00'),
-('14:00:00', '15:00:00'),
-('14:30:00', '15:30:00'),
-('15:00:00', '16:00:00'),
-('15:30:00', '16:30:00'),
-('16:00:00', '17:00:00'),
-('16:30:00', '17:30:00'),
-('17:00:00', '18:00:00'),
-('17:30:00', '18:30:00'),
-('18:00:00', '19:00:00'),
-('18:30:00', '19:30:00'),
-('19:00:00', '20:00:00'),
-('19:30:00', '20:30:00'),
-('20:00:00', '21:00:00'),
-('20:30:00', '21:30:00'),
-('21:00:00', '22:00:00'),
-('21:30:00', '22:30:00');
+INSERT INTO `time_slots` VALUES (31,'07:30:00','08:30:00'),(32,'08:00:00','09:00:00'),(33,'08:30:00','09:30:00'),(34,'09:00:00','10:00:00'),(35,'09:30:00','10:30:00'),(36,'10:00:00','11:00:00'),(37,'10:30:00','11:30:00'),(38,'11:00:00','12:00:00'),(39,'11:30:00','12:30:00'),(40,'12:00:00','13:00:00'),(41,'12:30:00','13:30:00'),(42,'13:00:00','14:00:00'),(43,'13:30:00','14:30:00'),(44,'14:00:00','15:00:00'),(45,'14:30:00','15:30:00'),(46,'15:00:00','16:00:00'),(47,'15:30:00','16:30:00'),(48,'16:00:00','17:00:00'),(49,'16:30:00','17:30:00'),(50,'17:00:00','18:00:00'),(51,'17:30:00','18:30:00'),(52,'18:00:00','19:00:00'),(53,'18:30:00','19:30:00'),(54,'19:00:00','20:00:00'),(55,'19:30:00','20:30:00'),(56,'20:00:00','21:00:00'),(57,'20:30:00','21:30:00'),(58,'21:00:00','22:00:00'),(59,'21:30:00','22:30:00');
 /*!40000 ALTER TABLE `time_slots` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -164,7 +197,6 @@ UNLOCK TABLES;
 --
 -- Dumping routines for database 'agenda_senai'
 --
-
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
@@ -175,4 +207,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-04-30 16:28:35
+-- Dump completed on 2025-05-21 16:14:30
