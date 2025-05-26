@@ -20,7 +20,8 @@ module.exports = function validateUser({
       return { error: "Email inválido. Deve conter @" };
     }
   
-    return null; // Retorna null se não houver erro
+    // Retorna null se não houver erro
+    return null; 
   };
   
   

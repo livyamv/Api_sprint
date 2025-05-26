@@ -3,7 +3,7 @@ version: "3.8"
 services:
   app:
     ## O "." indica que a imagem do Docker será construida no diretório atual
-    build: . 
+    build: .
     command: /bin/sh -c "npm install && npm start"
     ## Mapeia a porta 5000 do container para porta 5000 da máquina
     ports:
@@ -22,12 +22,12 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: root
       MYSQL_DATABASE: agenda_senai
-    ## Mapeia a porta 3306 do container para porta 3306 da máquina 
+    ## Mapeia a porta 3307 do container para porta 3306 da máquina
     ports:
       - "3307:3307"
     volumes:
       - db_data:/var/lib/mysql
-      - ./mysql-init:/docker-entrypoint-initdb.d
+        - ./mysql-init:/docker-entrypoint-initdb.d
 
 volumes:
   db_data:

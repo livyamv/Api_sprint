@@ -131,7 +131,7 @@ module.exports = class userController {
       connect.query(query, [cpf], (err, results) => {
         if (err) {
           console.error("Erro ao executar a consulta:", err);
-          return res.status(500).json({ error: "Erro interno do servidor" });
+          return res.status(500).json({ error: "Erro interno do servidor --- try" });
         }
 
         if (results.length === 0) {
@@ -160,7 +160,7 @@ module.exports = class userController {
       });
     } catch (error) {
       console.error("Erro ao executar a consulta:", error);
-      return res.status(500).json({ error: "Erro interno do servidor" });
+      return res.status(500).json({ error: "Erro interno do servidor --- catch" });
     }
   }
 };

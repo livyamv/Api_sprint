@@ -20,7 +20,7 @@ class AppController {
     routes() {
       const apiRoutes= require('./routes/apiRoutes');
       this.express.use('/api/reservas/v1/', apiRoutes);
-      //http://localhost:5000/api/reservas/v1
+      //http://localhost:3000/api/reservas/v1
     }
   }
 

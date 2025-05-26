@@ -25,6 +25,8 @@ END;
 
 DELIMITER ;
 
-DELETE FROM schedule WHERE id_schedule = 13;
+-- teste
+DELETE FROM schedule WHERE id_schedule = 8;
 
-SELECT * FROM cancelamento_reserva ORDER BY id DESC LIMIT 5;
+-- verifica se a trigger funcionou
+select * from historico_reserva;
