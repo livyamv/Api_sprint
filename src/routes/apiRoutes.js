@@ -21,7 +21,7 @@ router.put("/classroom/", classroomController.updateClassroom);
 router.delete("/classroom/:number", classroomController.deleteClassroom);
 
 //Schedule
-router.post("/schedule/", verifyJWT, scheduleController.createSchedule);
+router.post("/schedules/", verifyJWT, scheduleController.createSchedule);
 router.get("/schedule/", verifyJWT, scheduleController.getAllSchedules);
 router.get("/disponibilidade/:fk_number/:date", verifyJWT, scheduleController.getHorariosDisponiveisPorSalaEData);
 router.put("/schedule/", verifyJWT, scheduleController.updateSchedule);

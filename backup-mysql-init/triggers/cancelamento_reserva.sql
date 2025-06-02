@@ -1,29 +1,32 @@
-DELIMITER //
+DELIMITER $$
 
 CREATE TRIGGER cancelamento_reserva
-AFTER DELETE ON schedule
+BEFORE DELETE ON schedule
 FOR EACH ROW
 BEGIN
-  INSERT INTO cancelamento_reserva (
+  INSERT INTO historico_reserva (
     id_schedule,
     fk_id_usuario,
     fk_number,
     descricao,
     inicio_periodo,
-    fim_periodo
-  )
-  VALUES (
+    fim_periodo,
+    data_reserva,
+    data_exclusao
+  ) VALUES (
     OLD.id_schedule,
     OLD.fk_id_usuario,
     OLD.fk_number,
     OLD.descricao,
     OLD.inicio_periodo,
-    OLD.fim_periodo
+    OLD.fim_periodo,
+    NOW(),
+    NOW()
   );
-END;
-//
+END$$
 
 DELIMITER ;
+
 
 -- teste
 DELETE FROM schedule WHERE id_schedule = 8;

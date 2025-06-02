@@ -105,6 +105,7 @@ module.exports = class scheduleController {
         s.inicio_periodo, 
         s.fim_periodo, 
         c.description AS sala
+        c.number AS fk_number
       FROM schedule s
       JOIN classroom c ON s.fk_number = c.number
       WHERE s.fk_id_usuario = ?`;
