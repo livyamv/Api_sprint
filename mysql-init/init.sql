@@ -34,7 +34,7 @@ CREATE TABLE `cancelamento_reserva` (
   `fim_periodo` datetime DEFAULT NULL,
   `cancelado_em` datetime DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -43,7 +43,7 @@ CREATE TABLE `cancelamento_reserva` (
 
 LOCK TABLES `cancelamento_reserva` WRITE;
 /*!40000 ALTER TABLE `cancelamento_reserva` DISABLE KEYS */;
-INSERT INTO `cancelamento_reserva` VALUES (1,13,1,'A2','asdfghjkl','2025-02-20 14:00:00','2025-02-20 15:00:00','2025-05-21 16:11:33'),(2,8,1,'A2','aulas','2025-05-04 11:00:00','2025-05-04 12:00:00','2025-06-02 15:35:34'),(3,24,3,'C5','Reserva antiga','2024-03-01 08:00:00','2024-03-01 10:00:00','2025-06-02 15:41:51'),(4,23,2,'TOR','Revisão de processos','2025-06-18 14:00:00','2025-06-18 16:00:00','2025-06-02 15:48:06');
+INSERT INTO `cancelamento_reserva` VALUES (1,13,1,'A2','asdfghjkl','2025-02-20 14:00:00','2025-02-20 15:00:00','2025-05-21 16:11:33');
 /*!40000 ALTER TABLE `cancelamento_reserva` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -104,6 +104,37 @@ INSERT INTO `historico_reserva` VALUES (1,23,2,'TOR','Revisão de processos','20
 UNLOCK TABLES;
 
 --
+-- Table structure for table `resumo_atualizacao`
+--
+
+DROP TABLE IF EXISTS `resumo_atualizacao`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `resumo_atualizacao` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `id_schedule` int NOT NULL,
+  `descricao` text,
+  `periodo_antigo` datetime DEFAULT NULL,
+  `periodo_novo` datetime DEFAULT NULL,
+  `data_atualizacao` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `usuario_id` int DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `id_schedule` (`id_schedule`),
+  CONSTRAINT `resumo_atualizacao_ibfk_1` FOREIGN KEY (`id_schedule`) REFERENCES `schedule` (`id_schedule`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `resumo_atualizacao`
+--
+
+LOCK TABLES `resumo_atualizacao` WRITE;
+/*!40000 ALTER TABLE `resumo_atualizacao` DISABLE KEYS */;
+INSERT INTO `resumo_atualizacao` VALUES (1,21,'Descrição alterada de \"Sala teste\" para \"Sala teste\"','2025-06-10 16:00:00','2025-06-10 16:00:00','2025-06-04 15:34:22',8);
+/*!40000 ALTER TABLE `resumo_atualizacao` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Table structure for table `schedule`
 --
 
@@ -122,7 +153,7 @@ CREATE TABLE `schedule` (
   KEY `fk_number` (`fk_number`),
   CONSTRAINT `schedule_ibfk_1` FOREIGN KEY (`fk_id_usuario`) REFERENCES `user` (`id_usuario`),
   CONSTRAINT `schedule_ibfk_2` FOREIGN KEY (`fk_number`) REFERENCES `classroom` (`number`)
-) ENGINE=InnoDB AUTO_INCREMENT=25 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=14 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -131,7 +162,7 @@ CREATE TABLE `schedule` (
 
 LOCK TABLES `schedule` WRITE;
 /*!40000 ALTER TABLE `schedule` DISABLE KEYS */;
-INSERT INTO `schedule` VALUES (18,5,'ITEL1','Reunião mensal','2025-06-13 08:30:00','2025-06-13 10:30:00'),(19,6,'D2','Entrevista de seleção','2025-06-14 09:30:00','2025-06-14 10:30:00'),(20,7,'CORT1','Planejamento estratégico','2025-06-15 11:00:00','2025-06-15 13:00:00'),(21,8,'PESP1','Feedback de equipe','2025-06-16 15:00:00','2025-06-16 16:00:00');
+INSERT INTO `schedule` VALUES (4,2,'A2','asdfghjkl','2025-02-20 21:00:00','2025-02-20 22:00:00'),(5,1,'A2','asdfghjkl','2025-02-20 14:00:00','2025-02-20 15:00:00'),(7,1,'b7','Reunião de equipe','2025-05-01 10:00:00','2025-05-01 11:00:00'),(8,1,'A2','aulas','2025-05-04 11:00:00','2025-05-04 12:00:00'),(9,3,'c3','Ffdffffdr','2025-02-02 13:00:00','2025-02-02 14:00:00'),(10,1,'C2','Eeeee3','2025-02-02 13:22:00','2025-02-02 13:56:00'),(11,1,'MONT1','Project ','2025-02-02 10:00:00','2025-02-02 11:00:00'),(12,1,'MONT1','Ui','2025-02-02 10:00:00','2025-02-02 11:00:00');
 /*!40000 ALTER TABLE `schedule` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!50003 SET @saved_cs_client      = @@character_set_client */ ;
@@ -143,105 +174,14 @@ UNLOCK TABLES;
 /*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
 /*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
 DELIMITER ;;
-/*!50003 CREATE*/ /*!50017 DEFINER=`alunods`@`%`*/ /*!50003 TRIGGER `trg_arquivar_reserva_antes_delete` BEFORE DELETE ON `schedule` FOR EACH ROW BEGIN
-  INSERT INTO historico_reserva (
-    id_schedule, fk_id_usuario, fk_number, descricao,
-    inicio_periodo, fim_periodo, data_reserva, data_exclusao
-  )
-  VALUES (
-    OLD.id_schedule,
-    OLD.fk_id_usuario,
-    OLD.fk_number,
-    OLD.descricao,
-    OLD.inicio_periodo,
-    OLD.fim_periodo,
-    NOW(), -- ou OLD.data_reserva se existir, mas schedule não tem essa coluna
-    NOW()
-  );
-END */;;
-DELIMITER ;
-/*!50003 SET sql_mode              = @saved_sql_mode */ ;
-/*!50003 SET character_set_client  = @saved_cs_client */ ;
-/*!50003 SET character_set_results = @saved_cs_results */ ;
-/*!50003 SET collation_connection  = @saved_col_connection */ ;
-/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
-/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
-/*!50003 SET @saved_col_connection = @@collation_connection */ ;
-/*!50003 SET character_set_client  = utf8mb4 */ ;
-/*!50003 SET character_set_results = utf8mb4 */ ;
-/*!50003 SET collation_connection  = utf8mb4_0900_ai_ci */ ;
-/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
-/*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
-DELIMITER ;;
-/*!50003 CREATE*/ /*!50017 DEFINER=`alunods`@`%`*/ /*!50003 TRIGGER `arquivar_reserva_antes_delete` BEFORE DELETE ON `schedule` FOR EACH ROW BEGIN
-  INSERT INTO historico_reserva (
-    id_schedule, fk_id_usuario, fk_number, descricao,
-    inicio_periodo, fim_periodo, data_reserva, data_exclusao
-  )
-  VALUES (
-    OLD.id_schedule,
-    OLD.fk_id_usuario,
-    OLD.fk_number,
-    OLD.descricao,
-    OLD.inicio_periodo,
-    OLD.fim_periodo,
-    NOW(), 
-    NOW()
-  );
-END */;;
-DELIMITER ;
-/*!50003 SET sql_mode              = @saved_sql_mode */ ;
-/*!50003 SET character_set_client  = @saved_cs_client */ ;
-/*!50003 SET character_set_results = @saved_cs_results */ ;
-/*!50003 SET collation_connection  = @saved_col_connection */ ;
-/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
-/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
-/*!50003 SET @saved_col_connection = @@collation_connection */ ;
-/*!50003 SET character_set_client  = utf8mb4 */ ;
-/*!50003 SET character_set_results = utf8mb4 */ ;
-/*!50003 SET collation_connection  = utf8mb4_0900_ai_ci */ ;
-/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
-/*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
-DELIMITER ;;
-/*!50003 CREATE*/ /*!50017 DEFINER=`alunods`@`%`*/ /*!50003 TRIGGER `cancelamento_reserva` BEFORE DELETE ON `schedule` FOR EACH ROW BEGIN
-  INSERT INTO historico_reserva (
+/*!50003 CREATE*/ /*!50017 DEFINER=`root`@`localhost`*/ /*!50003 TRIGGER `cancelamento_reserva` AFTER DELETE ON `schedule` FOR EACH ROW BEGIN
+  INSERT INTO cancelamento_reserva (
     id_schedule,
     fk_id_usuario,
     fk_number,
     descricao,
     inicio_periodo,
-    fim_periodo,
-    data_reserva,
-    data_exclusao
-  ) VALUES (
-    OLD.id_schedule,
-    OLD.fk_id_usuario,
-    OLD.fk_number,
-    OLD.descricao,
-    OLD.inicio_periodo,
-    OLD.fim_periodo,
-    NOW(),
-    NOW()
-  );
-END */;;
-DELIMITER ;
-/*!50003 SET sql_mode              = @saved_sql_mode */ ;
-/*!50003 SET character_set_client  = @saved_cs_client */ ;
-/*!50003 SET character_set_results = @saved_cs_results */ ;
-/*!50003 SET collation_connection  = @saved_col_connection */ ;
-/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
-/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
-/*!50003 SET @saved_col_connection = @@collation_connection */ ;
-/*!50003 SET character_set_client  = utf8mb4 */ ;
-/*!50003 SET character_set_results = utf8mb4 */ ;
-/*!50003 SET collation_connection  = utf8mb4_0900_ai_ci */ ;
-/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
-/*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
-DELIMITER ;;
-/*!50003 CREATE*/ /*!50017 DEFINER=`alunods`@`%`*/ /*!50003 TRIGGER `arquivar_reservas` BEFORE DELETE ON `schedule` FOR EACH ROW BEGIN
-  INSERT INTO historico_reserva (
-    id_schedule, fk_id_usuario, fk_number, descricao,
-    inicio_periodo, fim_periodo, data_reserva, data_exclusao
+    fim_periodo
   )
   VALUES (
     OLD.id_schedule,
@@ -249,9 +189,7 @@ DELIMITER ;;
     OLD.fk_number,
     OLD.descricao,
     OLD.inicio_periodo,
-    OLD.fim_periodo,
-    NOW(), 
-    NOW()
+    OLD.fim_periodo
   );
 END */;;
 DELIMITER ;
@@ -355,6 +293,31 @@ DELIMITER ;
 --
 -- Dumping routines for database 'agenda_senai'
 --
+/*!50003 DROP PROCEDURE IF EXISTS `total_reservas_usuario` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8mb4 */ ;
+/*!50003 SET character_set_results = utf8mb4 */ ;
+/*!50003 SET collation_connection  = utf8mb4_0900_ai_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+CREATE DEFINER=`root`@`localhost` PROCEDURE `total_reservas_usuario`(
+    in p_id_usuario int,   -- parâmetro de entrada
+    out p_total int        -- parâmetro de saída - total de reservas do usuário
+)
+begin
+    select count(*)     -- conta quantas reservas existem no banco 
+    into p_total        -- armazena a soma das reservas
+    from schedule
+    where fk_id_usuario = p_id_usuario;  -- reservas que pertencem ao usuário informado como parâmetro
+end ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
@@ -365,4 +328,4 @@ DELIMITER ;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-06-02 16:21:12
+-- Dump completed on 2025-06-04 15:32:26

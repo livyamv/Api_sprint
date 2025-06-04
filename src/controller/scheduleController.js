@@ -3,7 +3,8 @@ const validateSchedule = require("../services/validateSchedule");
 
 module.exports = class scheduleController {
   static async createSchedule(req, res) {
-    const { fk_id_usuario, descricao, inicio_periodo, fim_periodo, fk_number } = req.body;
+    const { fk_id_usuario, descricao, inicio_periodo, fim_periodo, fk_number } =
+      req.body;
 
     // Verifica se as datas são válidas
     if (isNaN(Date.parse(inicio_periodo)) || isNaN(Date.parse(fim_periodo))) {
@@ -42,7 +43,9 @@ module.exports = class scheduleController {
         });
 
         if (existingSchedules && existingSchedules.length > 0) {
-          return res.status(400).json({ error: "A sala já está reservada nesse horário!" });
+          return res
+            .status(400)
+            .json({ error: "A sala já está reservada nesse horário!" });
         }
 
         const insertQuery = `INSERT INTO schedule (fk_id_usuario, descricao, inicio_periodo, fim_periodo, fk_number) 
@@ -50,7 +53,10 @@ module.exports = class scheduleController {
 
         // Função para formatar a data no formato MySQL
         const formatDateTime = (isoString) => {
-          return new Date(isoString).toISOString().slice(0, 19).replace("T", " ");
+          return new Date(isoString)
+            .toISOString()
+            .slice(0, 19)
+            .replace("T", " ");
         };
 
         const insertValues = [
@@ -64,9 +70,13 @@ module.exports = class scheduleController {
         connect.query(insertQuery, insertValues, (err) => {
           if (err) {
             console.log(err);
-            return res.status(500).json({ error: "Erro ao criar o agendamento!" });
+            return res
+              .status(500)
+              .json({ error: "Erro ao criar o agendamento!" });
           }
-          return res.status(201).json({ message: "Reserva criada com sucesso!" });
+          return res
+            .status(201)
+            .json({ message: "Reserva criada com sucesso!" });
         });
       } catch (error) {
         return res.status(500).json({ error: error.message });
@@ -97,26 +107,27 @@ module.exports = class scheduleController {
 
   static async getSchedulesByUser(req, res) {
     const userId = req.params.id;
-
+  
     const query = `
-      SELECT 
-        s.id_schedule, 
-        s.descricao, 
-        s.inicio_periodo, 
-        s.fim_periodo, 
-        c.description AS sala
-        c.number AS fk_number
-      FROM schedule s
-      JOIN classroom c ON s.fk_number = c.number
-      WHERE s.fk_id_usuario = ?`;
-
+      SELECT      
+        s.id_schedule,      
+        s.descricao,     
+        s.inicio_periodo,     
+        s.fim_periodo,      
+        c.description AS sala,    
+        c.number AS fk_number 
+      FROM schedule s   
+      JOIN classroom c ON s.fk_number = c.number   
+      WHERE s.fk_id_usuario = ?;
+    `;
+  
     try {
       connect.query(query, [userId], (err, results) => {
         if (err) {
           console.error(err);
           return res.status(500).json({ error: "Erro interno do servidor" });
         }
-
+  
         return res.status(200).json({
           message: `Reservas do usuário ${userId}`,
           reservas: results,
@@ -127,12 +138,15 @@ module.exports = class scheduleController {
       return res.status(500).json({ error: "Erro interno do servidor" });
     }
   }
+  
 
   static async getHorariosDisponiveisPorSalaEData(req, res) {
     const { fk_number, date } = req.params;
 
     if (!fk_number || !date) {
-      return res.status(400).json({ error: "Número da sala e data são obrigatórios." });
+      return res
+        .status(400)
+        .json({ error: "Número da sala e data são obrigatórios." });
     }
 
     const query = `
@@ -159,7 +173,9 @@ module.exports = class scheduleController {
         }
 
         if (results.length === 0) {
-          return res.status(404).json({ message: "Nenhum horário disponível para essa sala e data." });
+          return res.status(404).json({
+            message: "Nenhum horário disponível para essa sala e data.",
+          });
         }
 
         return res.status(200).json({
@@ -208,14 +224,18 @@ module.exports = class scheduleController {
       connect.query(query, values, (err, results) => {
         if (err) {
           console.log(err);
-          return res.status(500).json({ error: "Erro ao atualizar o agendamento!" });
+          return res
+            .status(500)
+            .json({ error: "Erro ao atualizar o agendamento!" });
         }
 
         if (results.affectedRows === 0) {
           return res.status(404).json({ error: "Agendamento não encontrado!" });
         }
 
-        return res.status(200).json({ message: "Agendamento atualizado com sucesso!" });
+        return res
+          .status(200)
+          .json({ message: "Agendamento atualizado com sucesso!" });
       });
     } catch (error) {
       return res.status(500).json({ error });
@@ -224,25 +244,27 @@ module.exports = class scheduleController {
 
   static async deleteSchedule(req, res) {
     const idSchedule = req.params.id;
-
+  
     const query = `DELETE FROM schedule WHERE id_schedule = ?`;
-
+  
     try {
-      connect.query(query, idSchedule, (err, results) => {
+      connect.query(query, [idSchedule], (err, results) => {
         if (err) {
-          console.log(err);
+          console.log(err);  // Qual é o erro completo aqui?          
           return res.status(500).json({ error: "Erro ao excluir reserva!" });
         }
-
+  
         if (results.affectedRows === 0) {
           return res.status(404).json({ error: "Reserva não encontrada!" });
         }
-
-        return res.status(200).json({ message: "Reserva excluída com sucesso!" });
+  
+        return res
+          .status(200)
+          .json({ message: "Reserva excluída com sucesso!" });
       });
     } catch (error) {
       console.log("Erro ao executar a consulta!", error);
       return res.status(500).json({ error: "Erro interno do servidor!" });
     }
   }
-};
+}  
