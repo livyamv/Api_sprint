@@ -1,38 +1,30 @@
 const connect = require("../db/connect");
 
-module.exports = class totalController {
-  static async getTotalSchedulePorUsuario(req, res) {
-    const id_usuario = req.params.id;
+module.exports = class reservaController {
+  static async totalReservasUsuario(req, res) {
+    const id = req.params.id;
 
-    if (!id_usuario) {
-      return res.status(400).json({ error: "ID do usuário é obrigatório!" });
+    if (!id) {
+      return res.status(400).json({ error: "Parâmetro id é obrigatório" });
     }
 
-    connect.getConnection((err, connection) => {
+    connect.query("CALL total_reservas_usuario(?, @total);", [id], (err) => {
       if (err) {
-        console.error("Erro ao obter conexão:", err);
-        return res.status(500).json({ error: "Erro ao obter conexão com o banco de dados." });
+        console.error("Erro ao chamar procedure total_reservas_usuario:", err.message);
+        return res.status(500).json({ error: err.message });
       }
 
-      // Chamada da procedure com dois parâmetros: id e variável de saída
-      connection.query("CALL total_reservas_usuario(?, @total);", [parseInt(id_usuario)], (err) => {
-        if (err) {
-          connection.release();
-          console.error("Erro ao executar procedure:", err);
-          return res.status(500).json({ error: "Erro ao executar procedure." });
+      connect.query("SELECT @total as total_reservas;", (err2, results2) => {
+        if (err2) {
+          console.error("Erro ao obter total de reservas:", err2.message);
+          return res.status(500).json({ error: err2.message });
         }
 
-        // Consulta a variável de saída
-        connection.query("SELECT @total AS total;", (err, results) => {
-          connection.release();
+        const totalReservas = results2[0].total_reservas;
 
-          if (err) {
-            console.error("Erro ao buscar resultado:", err);
-            return res.status(500).json({ error: "Erro ao buscar resultado." });
-          }
-
-          const total = results[0]?.total ?? 0;
-          return res.status(200).json({ total });
+        return res.status(200).json({
+          message: `Total de reservas para o usuário ${id} obtido com sucesso`,
+          total_reservas: totalReservas,
         });
       });
     });

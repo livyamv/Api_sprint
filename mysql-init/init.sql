@@ -90,7 +90,7 @@ CREATE TABLE `historico_reserva` (
   `data_reserva` datetime DEFAULT CURRENT_TIMESTAMP,
   `data_exclusao` datetime DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id_historico`)
-) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=20 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -99,7 +99,7 @@ CREATE TABLE `historico_reserva` (
 
 LOCK TABLES `historico_reserva` WRITE;
 /*!40000 ALTER TABLE `historico_reserva` DISABLE KEYS */;
-INSERT INTO `historico_reserva` VALUES (1,23,2,'TOR','Revisão de processos','2025-06-18 14:00:00','2025-06-18 16:00:00','2025-06-02 15:48:06','2025-06-02 15:48:06'),(2,22,1,'test','Sessão de brainstorming','2025-06-17 09:00:00','2025-06-17 11:30:00','2025-06-02 16:12:29','2025-06-02 16:12:29'),(3,22,1,'test','Sessão de brainstorming','2025-06-17 09:00:00','2025-06-17 11:30:00','2025-06-02 16:12:29','2025-06-02 16:12:29'),(4,22,1,'test','Sessão de brainstorming','2025-06-17 09:00:00','2025-06-17 11:30:00','2025-06-02 16:12:29','2025-06-02 16:12:29');
+INSERT INTO `historico_reserva` VALUES (1,23,2,'TOR','Revisão de processos','2025-06-18 14:00:00','2025-06-18 16:00:00','2025-06-02 15:48:06','2025-06-02 15:48:06'),(2,22,1,'test','Sessão de brainstorming','2025-06-17 09:00:00','2025-06-17 11:30:00','2025-06-02 16:12:29','2025-06-02 16:12:29'),(3,22,1,'test','Sessão de brainstorming','2025-06-17 09:00:00','2025-06-17 11:30:00','2025-06-02 16:12:29','2025-06-02 16:12:29'),(4,22,1,'test','Sessão de brainstorming','2025-06-17 09:00:00','2025-06-17 11:30:00','2025-06-02 16:12:29','2025-06-02 16:12:29'),(5,4,2,'A2','asdfghjkl','2025-02-20 21:00:00','2025-02-20 22:00:00','2025-06-09 15:41:04','2025-06-09 15:41:04'),(6,5,1,'A2','asdfghjkl','2025-02-20 14:00:00','2025-02-20 15:00:00','2025-06-09 15:41:04','2025-06-09 15:41:04'),(7,7,1,'b7','Reunião de equipe','2025-05-01 10:00:00','2025-05-01 11:00:00','2025-06-09 15:41:04','2025-06-09 15:41:04'),(8,8,1,'A2','aulas','2025-05-04 11:00:00','2025-05-04 12:00:00','2025-06-09 15:41:04','2025-06-09 15:41:04'),(9,9,3,'c3','Ffdffffdr','2025-02-02 13:00:00','2025-02-02 14:00:00','2025-06-09 15:41:04','2025-06-09 15:41:04'),(10,10,1,'C2','Eeeee3','2025-02-02 13:22:00','2025-02-02 13:56:00','2025-06-09 15:41:04','2025-06-09 15:41:04'),(11,11,1,'MONT1','Project ','2025-02-02 10:00:00','2025-02-02 11:00:00','2025-06-09 15:41:04','2025-06-09 15:41:04'),(12,12,1,'MONT1','Ui','2025-02-02 10:00:00','2025-02-02 11:00:00','2025-06-09 15:41:04','2025-06-09 15:41:04');
 /*!40000 ALTER TABLE `historico_reserva` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -151,7 +151,7 @@ CREATE TABLE `schedule` (
   PRIMARY KEY (`id_schedule`),
   KEY `fk_id_usuario` (`fk_id_usuario`),
   KEY `fk_number` (`fk_number`),
-  CONSTRAINT `schedule_ibfk_1` FOREIGN KEY (`fk_id_usuario`) REFERENCES `user` (`id_usuario`),
+  CONSTRAINT `schedule_ibfk_1` FOREIGN KEY (`fk_id_usuario`) REFERENCES `user` (`id_usuario`) ON DELETE CASCADE,
   CONSTRAINT `schedule_ibfk_2` FOREIGN KEY (`fk_number`) REFERENCES `classroom` (`number`)
 ) ENGINE=InnoDB AUTO_INCREMENT=14 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -174,7 +174,7 @@ UNLOCK TABLES;
 /*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
 /*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
 DELIMITER ;;
-/*!50003 CREATE*/ /*!50017 DEFINER=`root`@`localhost`*/ /*!50003 TRIGGER `cancelamento_reserva` AFTER DELETE ON `schedule` FOR EACH ROW BEGIN
+/*!50003 CREATE*/ /*!50017 DEFINER=`alunods`@`%`*/ /*!50003 TRIGGER `cancelamento_reserva` AFTER DELETE ON `schedule` FOR EACH ROW BEGIN
   INSERT INTO cancelamento_reserva (
     id_schedule,
     fk_id_usuario,
@@ -232,10 +232,10 @@ DROP TABLE IF EXISTS `user`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `user` (
   `id_usuario` int NOT NULL AUTO_INCREMENT,
-  `name` varchar(50) NOT NULL,
+  `name` varchar(255) NOT NULL,
   `cpf` char(11) NOT NULL,
-  `email` varchar(50) NOT NULL,
-  `password` varchar(255) NOT NULL,
+  `email` varchar(255) NOT NULL,
+  `password` varchar(500) NOT NULL,
   PRIMARY KEY (`id_usuario`),
   UNIQUE KEY `cpf` (`cpf`),
   UNIQUE KEY `email` (`email`)
@@ -328,4 +328,4 @@ DELIMITER ;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-06-04 15:32:26
+-- Dump completed on 2025-06-09 16:16:55

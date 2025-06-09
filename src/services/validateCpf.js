@@ -1,27 +1,17 @@
-const connect = require("../db/connect");
-
-module.exports = async function validateCpf(cpf, userId = null) {
+module.exports = async function validateCpf(cpf, userId){
+const validateCpf = async (cpf, userId) => {
   return new Promise((resolve, reject) => {
-    const query = "SELECT id_usuario FROM user WHERE cpf = ?";
-    const values = [cpf];
+    const query = `SELECT id_usuario FROM user WHERE cpf = ? AND id_usuario != ?`;
 
-    connect.query(query, values, (err, results) => {
-      if (err) {
-        reject("Erro ao verificar CPF");
-      } else if (results.length > 0) {
-        const cpfCadastrado = results[0].id_usuario;
+    connect.query(query, [cpf, userId], (err, results) => {
+      if (err) return reject({ error: "Erro ao validar CPF" });
 
-        // Se um userId foi passado (update) e o CPF pertence a outro usuário, retorna erro
-        if (userId && cpfCadastrado !== userId) {
-          resolve({ error: "CPF já cadastrado para outro usuário" });
-        } else if (!userId) {
-          resolve({ error: "CPF já cadastrado" });
-        } else {
-          resolve(null);
-        }
+      if (results.length > 0) {
+        resolve({ error: "CPF já cadastrado" });
       } else {
-        resolve(null);
+        resolve(null); // CPF OK
       }
     });
   });
 };
+}
