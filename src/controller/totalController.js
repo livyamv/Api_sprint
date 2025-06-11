@@ -1,6 +1,7 @@
 const connect = require("../db/connect");
 
-module.exports = class reservaController {
+module.exports = class totalController {
+  //procedure
   static async totalReservasUsuario(req, res) {
     const id = req.params.id;
 

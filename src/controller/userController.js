@@ -29,7 +29,6 @@ module.exports = class userController {
         if (err) {
           if (err.code === "ER_DUP_ENTRY") {            
             if (err.message.includes("for key 'user.email'")) {
-              console.log("Entrou aqui email!!!");
               return res.status(400).json({ error: "Email já cadastrado" });
             }
           } else {
@@ -67,7 +66,7 @@ module.exports = class userController {
   static async getUserById(req, res) {
     const userId = req.params.id;
   
-    const query = `SELECT name, email, cpf, password FROM \`user\` WHERE id_usuario = ?`;
+    const query = `SELECT name, email, cpf, password FROM user WHERE id_usuario = ?`;
   
     connect.query(query, [userId], (err, results) => {
       if (err) {
@@ -89,9 +88,6 @@ module.exports = class userController {
   static async updateUser(req, res) {
     const { name, cpf, email, password } = req.body;
     const id = req.params.id;
-
-    console.log("Parametros Recebidos: ", name, cpf, email);
-    console.log("Id: ", id);
       
     // Agora a validação aceita atualização sem senha
     const validationError = validateUser({ name, cpf, email}, true);

@@ -1,32 +1,32 @@
-delimiter $$
+DELIMITER $$
 
-create function verifica_disponibilidade_sala(
-    p_fk_number varchar(20),
-    p_inicio datetime,
-    p_fim datetime
-) returns varchar(20)
-not deterministic   -- dada a mesma entrada, a função sempre retorna o mesmo resultado
-    reads sql data
-begin
-    declare disponivel int;
+CREATE FUNCTION verifica_disponibilidade_sala(
+    p_fk_number VARCHAR(20),
+    p_inicio DATETIME,
+    p_fim DATETIME
+) RETURNS VARCHAR(20)
+NOT DETERMINISTIC   -- pode retornar resultados diferentes se os dados mudarem
+READS SQL DATA
+BEGIN
+    DECLARE disponivel INT;
 
-    -- Verificar disponibilidade da sala
-    select count(*) -- conta quantas reservas existem e aramzena o resultado na variavel 'disponivel'
-    into disponivel
-    from schedule
-    where fk_number = p_fk_number -- reservas da sala informada como parâmetro
-    and(
-        (inicio_periodo < p_fim and fim_periodo > p_inicio) --verifica se o período da nova reserva se sobrepõe a alguma reserva existente
-    );
+    -- Verificar se há sobreposição com outras reservas da mesma sala
+    SELECT COUNT(*) 
+    INTO disponivel
+    FROM schedule
+    WHERE fk_number = p_fk_number 
+      AND (
+        inicio_periodo < p_fim AND fim_periodo > p_inicio
+      );
 
-    -- Se não houver uma reserva
-    if disponivel = 0 then
-        return 'Sala disponível'; 
-    else
-        return 'Sala já reservada'; 
-    end if;
-end; $$
+    IF disponivel = 0 THEN
+        RETURN 'Sala disponível'; 
+    ELSE
+        RETURN 'Sala reservada'; 
+    END IF;
+END $$
 
-delimiter ;
+DELIMITER ;
+
 
 select verifica_disponibilidade_sala('A2', '2025-05-05 08:30:00', '2025-05-05 09:30:00') as Disponibilidade;

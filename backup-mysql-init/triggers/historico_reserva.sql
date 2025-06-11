@@ -6,6 +6,6 @@ CREATE TABLE `historico_reserva` (
     `descricao` VARCHAR(255),                         
     `inicio_periodo` DATETIME NOT NULL,               
     `fim_periodo` DATETIME NOT NULL,                  
-    `data_reserva` DATETIME DEFAULT CURRENT_TIMESTAMP, 
+    `data_reserva` DATETIME, 
     `data_exclusao` DATETIME DEFAULT CURRENT_TIMESTAMP 
 );

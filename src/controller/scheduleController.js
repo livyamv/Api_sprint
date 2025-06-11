@@ -117,7 +117,8 @@ module.exports = class scheduleController {
         c.description AS sala,    
         c.number AS fk_number 
       FROM schedule s   
-      JOIN classroom c ON s.fk_number = c.number   
+      JOIN classroom c 
+      ON s.fk_number = c.number   
       WHERE s.fk_id_usuario = ?;
     `;
   
@@ -249,8 +250,7 @@ module.exports = class scheduleController {
   
     try {
       connect.query(query, [idSchedule], (err, results) => {
-        if (err) {
-          console.log(err);  // Qual é o erro completo aqui?          
+        if (err) {    
           return res.status(500).json({ error: "Erro ao excluir reserva!" });
         }
   
